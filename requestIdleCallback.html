@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>FIBER</title>
+  </head>
+  <body>
+    <div style="height: 200px;width: 100%;background: red;" id="div"></div>
+    <button id="btn1">开始计算</button>
+    <button id="btn2">改变颜色</button>
+    <script>
+      let div = document.getElementById('div')
+      let btn1 = document.getElementById('btn1')
+      let btn2 = document.getElementById('btn2')
+
+      let count = 100000
+      let index = 0
+      function loop(IdleDeadline){
+        // requestIdleCallback调用的函数会有一个参数，能获取到剩余时间
+        while(index < count && IdleDeadline.timeRemaining() > 1){
+          const result = Math.random() > 0.5 ? Math.random() : 0
+          console.log(index)
+          index++
+        }
+        requestIdleCallback(loop)
+      }
+
+      btn1.addEventListener('click', function(){
+        // loop() //会大量占用计算资源导致无响应
+        requestIdleCallback(loop)
+      })
+
+      btn2.addEventListener('click', function(){
+        div.style.background = 'black'
+        console.log('change ----------', index)
+      })
+    </script>
+  </body>
+</html>
