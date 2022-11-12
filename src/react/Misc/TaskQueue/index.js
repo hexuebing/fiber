@@ -10,4 +10,8 @@ export default class TaskQueue {
   pop(){
     return this.taskQueue.shift()
   }
+
+  isEmpty(){
+    return this.taskQueue.length === 0
+  }
 }
