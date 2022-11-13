@@ -2,6 +2,16 @@ import { TaskQueue, formatArray, createStateNode, getTag } from '../Misc'
 
 const taskQueue = new TaskQueue()
 let subTask = null
+let pendingCommit = null // 存储root节点的fiber对象
+
+// 拿到effects，去渲染真实的dom对象
+const commitAllWork = fiber => {
+  fiber.effects.forEach(item => {
+    if(item.effectTag === 'placement'){
+      item.parent.stateNode.appendChild(item.stateNode)
+    }
+  });
+}
 
 const getFirstTask = () => {
   const task = taskQueue.pop()
@@ -82,7 +92,9 @@ const executeTask = (fiber) => {
     // 退回到父级
     curExecuteFiber = curExecuteFiber.parent
   }
-  console.log(fiber)
+
+  // 执行到这里说明所有的节点都构建fiber对象完毕了
+  pendingCommit = curExecuteFiber // root节点的fiber对象
 }
 
 const performTask = (deadline) => {
@@ -93,6 +105,10 @@ const performTask = (deadline) => {
   while (subTask && deadline.timeRemaining() > 1){
     // 执行任务
     subTask = executeTask(subTask)
+  }
+
+  if(pendingCommit){
+    commitAllWork(pendingCommit)
   }
 
   // 如果任务存在，或者任务队列中还有任务
