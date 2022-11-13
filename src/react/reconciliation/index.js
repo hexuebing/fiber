@@ -1,4 +1,4 @@
-import { TaskQueue } from '../Misc'
+import { TaskQueue, formatArray } from '../Misc'
 
 const taskQueue = new TaskQueue()
 let subTask = null
@@ -17,8 +17,40 @@ const getFirstTask = () => {
   }
 }
 
-const executeTask = (fiber) => {
+const reconcileChildren = (fiber, children) => {
+  const childrenArr = formatArray(children)
   
+  let index = 0
+  let len = childrenArr.length
+  let element = null // 当前子节点
+  let newFiber = null
+  let prevFiber = null
+  
+  while(index < len){
+    element = childrenArr[index]
+    newFiber = {
+      type: element.type,
+      props: element.props,
+      tag: "host_component",
+      effects: [],
+      effects: "placement",
+      stateNode: null
+    }
+    if(index === 0){
+      // 第一个节点作为父节点的child
+      fiber.child = newFiber
+    }else{
+      // 当前节点作为上一个兄弟节点的 sibling
+      prevFiber.sibling = newFiber
+    }
+    prevFiber = newFiber // 为兄弟节点的上一个节点赋值当前节点
+    index++
+  }
+}
+
+const executeTask = (fiber) => {
+  reconcileChildren(fiber, fiber.props.children)
+  console.log(fiber)
 }
 
 const performTask = (deadline) => {
