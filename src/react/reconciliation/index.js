@@ -1,4 +1,4 @@
-import { TaskQueue, formatArray } from '../Misc'
+import { TaskQueue, formatArray, createStateNode } from '../Misc'
 
 const taskQueue = new TaskQueue()
 let subTask = null
@@ -36,6 +36,9 @@ const reconcileChildren = (fiber, children) => {
       effects: "placement",
       stateNode: null
     }
+
+    newFiber.stateNode = createStateNode(newFiber)
+
     if(index === 0){
       // 第一个节点作为父节点的child
       fiber.child = newFiber
