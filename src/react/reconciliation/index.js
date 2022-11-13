@@ -1,4 +1,4 @@
-import { TaskQueue, formatArray, createStateNode } from '../Misc'
+import { TaskQueue, formatArray, createStateNode, getTag } from '../Misc'
 
 const taskQueue = new TaskQueue()
 let subTask = null
@@ -31,12 +31,12 @@ const reconcileChildren = (fiber, children) => {
     newFiber = {
       type: element.type,
       props: element.props,
-      tag: "host_component",
       effects: [],
       effects: "placement",
       stateNode: null
     }
 
+    newFiber.tag = getTag(element)
     newFiber.stateNode = createStateNode(newFiber)
 
     if(index === 0){
