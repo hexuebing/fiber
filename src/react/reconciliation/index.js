@@ -42,6 +42,7 @@ const reconcileChildren = (fiber, children) => {
     if(index === 0){
       // 第一个节点作为父节点的child
       fiber.child = newFiber
+      newFiber.parent = fiber
     }else{
       // 当前节点作为上一个兄弟节点的 sibling
       prevFiber.sibling = newFiber
@@ -53,6 +54,9 @@ const reconcileChildren = (fiber, children) => {
 
 const executeTask = (fiber) => {
   reconcileChildren(fiber, fiber.props.children)
+  if(fiber.child){
+    return fiber.child
+  }
   console.log(fiber)
 }
 
