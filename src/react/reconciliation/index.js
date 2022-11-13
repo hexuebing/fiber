@@ -72,6 +72,9 @@ const executeTask = (fiber) => {
    */
   let curExecuteFiber = fiber
   while(curExecuteFiber.parent){
+    curExecuteFiber.parent.effects = curExecuteFiber.parent.effects.concat(
+      curExecuteFiber.effects.concat([curExecuteFiber])
+    )
     // 查看退回的父级是否有兄弟
     if(curExecuteFiber.sibling){
       return curExecuteFiber.sibling
