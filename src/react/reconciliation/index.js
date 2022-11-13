@@ -32,7 +32,7 @@ const reconcileChildren = (fiber, children) => {
       type: element.type,
       props: element.props,
       effects: [],
-      effects: "placement",
+      effectTag: "placement",
       stateNode: null
     }
 
@@ -42,20 +42,42 @@ const reconcileChildren = (fiber, children) => {
     if(index === 0){
       // 第一个节点作为父节点的child
       fiber.child = newFiber
-      newFiber.parent = fiber
     }else{
       // 当前节点作为上一个兄弟节点的 sibling
       prevFiber.sibling = newFiber
     }
     prevFiber = newFiber // 为兄弟节点的上一个节点赋值当前节点
+    newFiber.parent = fiber // 为每个子节点指定父节点
     index++
   }
 }
 
 const executeTask = (fiber) => {
   reconcileChildren(fiber, fiber.props.children)
+  /**
+   * 如果有子级节点，返回子级节点
+   * 将这个子级节点作为父级节点
+   */
   if(fiber.child){
     return fiber.child
+  }
+  
+  // // 如果没有子级，看是否有兄弟节点，没有就退回上返回父级，但是下面实现无法退回到父
+  // if(fiber.sibling){
+  //   return fiber.sibling
+  // }
+
+  /**
+   * 左侧节点构建完毕，开始构建其他节点
+   */
+  let curExecuteFiber = fiber
+  while(curExecuteFiber.parent){
+    // 查看退回的父级是否有兄弟
+    if(curExecuteFiber.sibling){
+      return curExecuteFiber.sibling
+    }
+    // 退回到父级
+    curExecuteFiber = curExecuteFiber.parent
   }
   console.log(fiber)
 }
@@ -64,7 +86,6 @@ const performTask = (deadline) => {
   if(!subTask) {
     // 任务为空去获取任务列表的第一个任务
     subTask = getFirstTask()
-    console.log(subTask)
   }
   while (subTask && deadline.timeRemaining() > 1){
     // 执行任务
