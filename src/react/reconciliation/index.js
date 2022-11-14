@@ -8,7 +8,15 @@ let pendingCommit = null // 存储root节点的fiber对象
 const commitAllWork = fiber => {
   fiber.effects.forEach(item => {
     if(item.effectTag === 'placement'){
-      item.parent.stateNode.appendChild(item.stateNode)
+      let fiber = item
+      let parentFiber = item.parent
+      // 类组件的节点无法追加DOM元素，找到真实的节点追加
+      while(parentFiber.tag === "class_component"){
+        parentFiber = parentFiber.parent
+      }
+      if(fiber.tag === "host_component"){
+        parentFiber.stateNode.appendChild(fiber.stateNode)
+      }
     }
   });
 }
@@ -28,6 +36,7 @@ const getFirstTask = () => {
 }
 
 const reconcileChildren = (fiber, children) => {
+  console.log(children)
   const childrenArr = formatArray(children)
   
   let index = 0
@@ -47,6 +56,7 @@ const reconcileChildren = (fiber, children) => {
     }
 
     newFiber.tag = getTag(element)
+    // 存储的是节点的实例或者节点
     newFiber.stateNode = createStateNode(newFiber)
 
     if(index === 0){
@@ -63,7 +73,11 @@ const reconcileChildren = (fiber, children) => {
 }
 
 const executeTask = (fiber) => {
-  reconcileChildren(fiber, fiber.props.children)
+  if(fiber.tag === "class_component"){
+    reconcileChildren(fiber, fiber.stateNode.render())
+  }else{
+    reconcileChildren(fiber, fiber.props.children)
+  }
   /**
    * 如果有子级节点，返回子级节点
    * 将这个子级节点作为父级节点

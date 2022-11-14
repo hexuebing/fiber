@@ -1,4 +1,4 @@
-import React, {render} from './react'
+import React, { render, Component } from './react'
 const root = document.getElementById('root')
 
 const jsx = (
@@ -8,4 +8,15 @@ const jsx = (
   </div>
 )
 
-render(jsx, root)
+// render(jsx, root)
+
+class Greeting extends Component {
+  constructor(props){
+    super(props)
+  }
+  render(){
+    return <div>class component</div>
+  }
+}
+
+render(<Greeting></Greeting>, root)
