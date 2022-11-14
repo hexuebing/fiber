@@ -11,7 +11,7 @@ const commitAllWork = fiber => {
       let fiber = item
       let parentFiber = item.parent
       // 类组件的节点无法追加DOM元素，找到真实的节点追加
-      while(parentFiber.tag === "class_component"){
+      while(parentFiber.tag === "class_component" || parentFiber.tag === "function_component"){
         parentFiber = parentFiber.parent
       }
       if(fiber.tag === "host_component"){
@@ -36,7 +36,6 @@ const getFirstTask = () => {
 }
 
 const reconcileChildren = (fiber, children) => {
-  console.log(children)
   const childrenArr = formatArray(children)
   
   let index = 0
@@ -75,6 +74,8 @@ const reconcileChildren = (fiber, children) => {
 const executeTask = (fiber) => {
   if(fiber.tag === "class_component"){
     reconcileChildren(fiber, fiber.stateNode.render())
+  }else if(fiber.tag === "function_component"){
+    reconcileChildren(fiber, fiber.stateNode(fiber.props))
   }else{
     reconcileChildren(fiber, fiber.props.children)
   }
